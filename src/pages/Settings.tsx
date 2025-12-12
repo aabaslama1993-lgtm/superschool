@@ -1,9 +1,12 @@
-import { User, Bell, Shield, Palette, Globe, HelpCircle, LogOut, ChevronRight, Moon, Sun, Smartphone } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { User, Bell, Shield, Palette, Globe, HelpCircle, LogOut, ChevronRight, Smartphone } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 
 const settingsSections = [
   {
@@ -31,6 +34,22 @@ const settingsSections = [
 ];
 
 export default function Settings() {
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleSignOut = async () => {
+    await signOut();
+    toast({
+      title: "Déconnexion",
+      description: "Vous avez été déconnecté avec succès.",
+    });
+    navigate("/auth");
+  };
+
+  const userEmail = user?.email || "utilisateur@email.com";
+  const userInitials = userEmail.substring(0, 2).toUpperCase();
+
   return (
     <div className="min-h-screen px-4 md:px-8 py-8">
       <div className="max-w-2xl mx-auto">
@@ -45,13 +64,13 @@ export default function Settings() {
             <div className="flex items-center gap-4">
               <Avatar className="w-16 h-16">
                 <AvatarFallback className="bg-gradient-primary text-primary-foreground text-xl">
-                  JD
+                  {userInitials}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1">
-                <h2 className="font-display font-semibold text-xl">Jean Dupont</h2>
-                <p className="text-muted-foreground">jean.dupont@email.com</p>
-                <p className="text-sm text-primary mt-1">Étudiant • Groupe A</p>
+                <h2 className="font-display font-semibold text-xl">{userEmail.split('@')[0]}</h2>
+                <p className="text-muted-foreground">{userEmail}</p>
+                <p className="text-sm text-primary mt-1">Membre EduConnect</p>
               </div>
               <Button variant="outline" size="sm">
                 Modifier
@@ -103,7 +122,10 @@ export default function Settings() {
         {/* Logout Button */}
         <Card className="glass mt-6 animate-slide-up" style={{ animationDelay: "400ms" }}>
           <CardContent className="p-2">
-            <button className="w-full flex items-center gap-4 p-4 rounded-lg hover:bg-destructive/10 transition-colors text-left group">
+            <button 
+              onClick={handleSignOut}
+              className="w-full flex items-center gap-4 p-4 rounded-lg hover:bg-destructive/10 transition-colors text-left group"
+            >
               <div className="w-10 h-10 rounded-lg bg-destructive/10 flex items-center justify-center">
                 <LogOut className="w-5 h-5 text-destructive" />
               </div>
